@@ -12,9 +12,10 @@ morgan.token('body', function (req, res) { return req.method === "POST" ? JSON.s
 const app = express()
 const logger = morgan(':method :url :status :res[content-length] - :response-time ms :body')
 
+
+app.use(logger)
 app.use(cors())
 app.use(express.json())
-app.use(logger)
 app.use(express.static('build'))
 
 let persons = [
@@ -43,6 +44,7 @@ let persons = [
 app.get('/api/persons', (request, response) => {
     Person.find({})
         .then(res => {
+            console.log(res)
             response.json(res)
         })
 })
@@ -69,7 +71,8 @@ app.get('/api/persons/:id', (request, response) => {
 app.delete('/api/persons/:id', (request, response) => {
     const id = request.params.id
     console.log(id)
-    Person.findByIdAndRemove(id).catch(err=>{})
+    Person.findByIdAndRemove(id)
+        .then(response.status(204).end())
 })
 
 
@@ -89,7 +92,6 @@ app.post('/api/persons', (request, response) => {
             return
         }
 
-        console.log('here')
         const person = new Person({
             name: body.name,
             number: body.number,
